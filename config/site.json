@@ -1,19 +1,19 @@
 {
   "site": {
-    "title": "我的番剧档案",
-    "brand": "ANIME LEDGER",
-    "description": "一份由数据与模板共同生成的私人番剧记录。",
+    "title": "随机番剧对比样本",
+    "brand": "ANIME DIFF LAB",
+    "description": "用于测试仓库 PK、共同收藏与评分差异的随机番剧档案。",
     "language": "zh-CN",
-    "footer": "由 MyAnimeLife 构建"
+    "footer": "MyAnimeLife 对比测试仓库"
   },
   "repository": {
-    "slug": "",
+    "slug": "zjsycwmrbig/test-diff-anime",
     "branch": "main"
   },
   "template": "default",
   "share": {
     "template": "default",
-    "accent": "coral"
+    "accent": "blue"
   },
   "insights": {
     "tagRadar": {
