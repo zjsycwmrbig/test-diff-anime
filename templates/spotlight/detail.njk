@@ -1,0 +1,288 @@
+{% extends "base.njk" %}
+{% from "icons.njk" import icon %}
+
+{% block bodyClass %}detail-page{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ assetRoot }}similar.css?v={{ assetVersion }}" />
+{% endblock %}
+
+{% block content %}
+  <div class="page-shell detail-shell">
+    <a class="back-link" href="{{ homeUrl }}">
+      {{ icon("arrow-left") }}
+      <span>返回全部档案</span>
+    </a>
+
+    <article
+      class="record-detail"
+      data-share-record
+      data-share-id="{{ record.id }}"
+      data-share-title="{{ record.title }}"
+      data-share-cover="{{ record.coverUrl or '' }}"
+      data-share-bangumi-id="{{ record.externalIds.bangumi or '' }}"
+      data-share-rating="{{ record.ratingDisplay }}"
+      data-share-review="{{ record.review }}"
+      data-share-season="{{ record.seasonLabel }}"
+      data-share-year="{{ record.yearLabel }}"
+      data-share-release="{{ record.releaseLabel }}"
+    >
+      <header class="detail-hero">
+        <div class="detail-cover-wrap">
+          <div
+            class="detail-cover"
+            data-bangumi-id="{{ record.externalIds.bangumi or '' }}"
+          >
+            <span class="cover-fallback" aria-hidden="true"></span>
+            {% if record.coverUrl %}
+              <img
+                src="{{ record.coverUrl }}"
+                alt="《{{ record.title }}》封面"
+                loading="eager"
+                decoding="async"
+                referrerpolicy="no-referrer"
+              />
+            {% endif %}
+          </div>
+          <p class="cover-caption">{{ record.id }}</p>
+        </div>
+
+        <div class="detail-summary">
+          <div class="detail-kicker">
+            {% if record.seasonLabel %}
+              <span>{{ record.seasonLabel }}</span>
+            {% endif %}
+            <span>{{ record.yearLabel or "年份未知" }}</span>
+            <span>{{ record.matchStatusLabel }}</span>
+            <span>{{ record.matchMethodLabel }}</span>
+          </div>
+          <h1>{{ record.title }}</h1>
+
+          <div class="detail-score-row">
+            <p class="detail-score{% if not record.hasRating %} is-empty{% endif %}">
+              {{ icon("star") }}
+              <strong>{{ record.ratingDisplay }}</strong>
+              {% if record.hasRating %}<span>/ 10</span>{% endif %}
+            </p>
+            <p class="detail-updated">
+              作品年代
+              <span>{{ record.releaseLabel or "未标注" }}</span>
+            </p>
+            <button
+              class="share-trigger detail-share-trigger"
+              data-share-trigger
+              type="button"
+              aria-haspopup="dialog"
+              aria-label="分享《{{ record.title }}》"
+              title="分享图片"
+            >
+              {{ icon("share") }}
+              <span>分享图片</span>
+            </button>
+          </div>
+
+          {% if record.sourceLinks.length %}
+            <div class="source-links" aria-label="外部索引">
+              {% for link in record.sourceLinks %}
+                <a href="{{ link.url }}" target="_blank" rel="noreferrer noopener">
+                  <span>{{ link.label }}</span>
+                  <small>{{ link.id }}</small>
+                  {{ icon("external") }}
+                </a>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          {% if repositoryEditUrl %}
+            <a
+              class="edit-record-link"
+              href="{{ repositoryEditUrl }}"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              {{ icon("pencil") }}
+              在 GitHub 编辑数据
+            </a>
+          {% endif %}
+        </div>
+      </header>
+
+      <div class="detail-content">
+        {% if record.hasPublicMetadata %}
+          <section
+            class="detail-section public-metadata-section"
+            aria-labelledby="public-metadata-title"
+          >
+            <div class="section-marker">BGM</div>
+            <div class="section-content">
+              <div class="public-metadata-heading">
+                <div>
+                  <p class="public-metadata-kicker">PUBLIC DATABASE</p>
+                  <h2 id="public-metadata-title">Bangumi 公共资料</h2>
+                </div>
+                <a
+                  class="public-metadata-link"
+                  href="https://bgm.tv/subject/{{ record.externalIds.bangumi }}"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  查看条目
+                  {{ icon("external") }}
+                </a>
+              </div>
+
+              <div class="public-metadata-panel">
+                {% if record.publicRatingDisplay or record.publicRatingCountLabel or record.publicRankLabel %}
+                  <div class="public-rating-layout{% if not record.publicRatingDisplay %} is-facts-only{% elif not record.publicRatingCountLabel and not record.publicRankLabel %} is-score-only{% endif %}">
+                    {% if record.publicRatingDisplay %}
+                      <div class="public-score">
+                        <span>公共评分</span>
+                        <p>
+                          <strong>{{ record.publicRatingDisplay }}</strong>
+                          <small>/ 10</small>
+                        </p>
+                      </div>
+                    {% endif %}
+                    {% if record.publicRatingCountLabel or record.publicRankLabel %}
+                      <dl class="public-rating-facts">
+                        {% if record.publicRatingCountLabel %}
+                          <div>
+                            <dt>评分人数</dt>
+                            <dd>{{ record.publicRatingCountLabel }}</dd>
+                          </div>
+                        {% endif %}
+                        {% if record.publicRankLabel %}
+                          <div>
+                            <dt>Bangumi 排名</dt>
+                            <dd>#{{ record.publicRank }}</dd>
+                          </div>
+                        {% endif %}
+                      </dl>
+                    {% endif %}
+                  </div>
+                {% endif %}
+
+                {% if record.publicTags.length %}
+                  <div class="public-tags">
+                    <div class="public-subheading">
+                      <h3>高频标签</h3>
+                      <span>按 Bangumi 标签热度排列</span>
+                    </div>
+                    <ul>
+                      {% for tag in record.publicTags %}
+                        <li>
+                          <span>{{ tag.name }}</span>
+                          {% if tag.count %}<small>{{ tag.count }}</small>{% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                    {% if record.publicTagOverflow %}
+                      <small class="public-tag-overflow">
+                        另有 {{ record.publicTagOverflow }} 个标签
+                      </small>
+                    {% endif %}
+                  </div>
+                {% endif %}
+
+                {% if record.publicSummary %}
+                  <div class="public-summary">
+                    <h3>作品简介</h3>
+                    <p>{{ record.publicSummary }}</p>
+                  </div>
+                {% endif %}
+
+                <p class="public-metadata-source">
+                  数据来自 Bangumi
+                  {% if record.publicFetchedAtLabel %}
+                    · 缓存于 {{ record.publicFetchedAtLabel }}
+                  {% endif %}
+                </p>
+              </div>
+            </div>
+          </section>
+        {% endif %}
+
+        <section class="detail-section" aria-labelledby="review-title">
+          <div class="section-marker">01</div>
+          <div class="section-content">
+            <h2 id="review-title">我的评价</h2>
+            {% if record.reviewHtml %}
+              <div class="prose">{{ record.reviewHtml | safe }}</div>
+            {% else %}
+              <p class="empty-copy">还没有写下评价。</p>
+            {% endif %}
+          </div>
+        </section>
+
+        <section class="detail-section" aria-labelledby="note-title">
+          <div class="section-marker">02</div>
+          <div class="section-content">
+            <h2 id="note-title">备注</h2>
+            {% if record.noteHtml %}
+              <div class="prose">{{ record.noteHtml | safe }}</div>
+            {% else %}
+              <p class="empty-copy">暂无备注。</p>
+            {% endif %}
+          </div>
+        </section>
+
+        <section class="detail-section match-section" aria-labelledby="match-title">
+          <div class="section-marker">03</div>
+          <div class="section-content">
+            <div class="section-title-row">
+              <h2 id="match-title">索引信息</h2>
+              {{ icon("database") }}
+            </div>
+
+            <dl class="match-grid">
+              <div>
+                <dt>匹配状态</dt>
+                <dd>{{ record.matchStatusLabel }}</dd>
+              </div>
+              <div>
+                <dt>匹配方式</dt>
+                <dd>{{ record.matchMethodLabel }}</dd>
+              </div>
+              <div>
+                <dt>置信度</dt>
+                <dd>{{ record.matchConfidenceLabel }}</dd>
+              </div>
+              <div>
+                <dt>索引来源</dt>
+                <dd>{{ record.match.source }}</dd>
+              </div>
+              <div class="match-wide">
+                <dt>匹配标题</dt>
+                <dd>{{ record.match.matchedTitle or "无" }}</dd>
+              </div>
+              <div>
+                <dt>匹配时间</dt>
+                <dd>{{ record.matchedAtLabel }}</dd>
+              </div>
+              <div>
+                <dt>记录创建</dt>
+                <dd>{{ record.createdAtLabel }}</dd>
+              </div>
+            </dl>
+
+            {% if record.externalIds and record.externalIds | length %}
+              <div class="external-id-list">
+                {% for source, id in record.externalIds %}
+                  <span><strong>{{ source }}</strong>{{ id }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </section>
+
+        {% include "similar.njk" %}
+      </div>
+    </article>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ assetRoot }}share.js?v={{ assetVersion }}" defer></script>
+  <script src="{{ assetRoot }}app.js?v={{ assetVersion }}" defer></script>
+  <script src="{{ assetRoot }}similar.js?v={{ assetVersion }}" defer></script>
+{% endblock %}

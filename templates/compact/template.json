@@ -1,0 +1,13 @@
+{
+  "id": "compact",
+  "name": "Compact Ledger",
+  "contractVersion": 1,
+  "entrypoints": {
+    "index": "index.njk",
+    "detail": "detail.njk",
+    "insights": "insights.njk",
+    "compare": "compare.njk",
+    "notFound": "404.njk"
+  },
+  "assets": "assets"
+}

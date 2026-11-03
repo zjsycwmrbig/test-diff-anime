@@ -1,0 +1,303 @@
+{% extends "base.njk" %}
+{% from "icons.njk" import icon %}
+
+{% block bodyClass %}index-page{% endblock %}
+
+{% block content %}
+  <div class="page-shell">
+    <section class="archive-intro" aria-labelledby="archive-title">
+      <div class="archive-heading">
+        <p class="eyebrow">{{ site.brand }}</p>
+        <h1 id="archive-title">{{ site.title }}</h1>
+        <p>{{ site.description }}</p>
+      </div>
+
+      <dl class="archive-stats" aria-label="档案统计">
+        <div>
+          <dt>收录</dt>
+          <dd>{{ stats.total }}<span>部</span></dd>
+        </div>
+        <div>
+          <dt>已评分</dt>
+          <dd>{{ stats.rated }}<span>部</span></dd>
+        </div>
+        <div>
+          <dt>平均分</dt>
+          <dd>{{ stats.averageRating }}<span>/ 10</span></dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="collection" aria-labelledby="collection-title">
+      <div class="collection-heading">
+        <div>
+          <p class="section-index">INDEX / 全部记录</p>
+          <h2 id="collection-title">作品清单</h2>
+        </div>
+        <p id="results-summary" class="results-summary" aria-live="polite">
+          共 {{ stats.total }} 部作品
+        </p>
+      </div>
+
+      {% if records.length %}
+        <div class="toolbar filter-workbench is-collapsed" aria-label="筛选与排序">
+          <label class="search-field filter-keyword">
+            <span class="visually-hidden">搜索番剧</span>
+            {{ icon("search") }}
+            <input
+              id="record-search"
+              type="search"
+              placeholder="搜索标题、评价、备注或索引 ID"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button
+              id="clear-search"
+              class="clear-search"
+              type="button"
+              aria-label="清空搜索"
+              title="清空搜索"
+              hidden
+            >
+              {{ icon("x") }}
+            </button>
+          </label>
+
+          <label class="select-field filter-sort-field">
+            <span>排序</span>
+            <select id="sort-order">
+              <option value="created-desc">添加日期：最新优先</option>
+              <option value="created-asc">添加日期：最早优先</option>
+              <option value="rating-desc">评分：高到低</option>
+              <option value="rating-asc">评分：低到高</option>
+              <option value="year-desc">作品年份：新到旧</option>
+              <option value="year-asc">作品年份：旧到新</option>
+              <option value="updated-desc">修改时间：新到旧</option>
+              <option value="updated-asc">修改时间：旧到新</option>
+              <option value="title-asc">标题：正序</option>
+              <option value="title-desc">标题：倒序</option>
+            </select>
+          </label>
+
+          <button
+            id="toggle-advanced-filters"
+            class="filter-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="rating-advanced year-advanced"
+          >
+            {{ icon("settings") }}
+            <span>筛选</span>
+            <em id="active-filter-count" hidden>0</em>
+          </button>
+
+          <div id="rating-advanced" class="filter-range-panel filter-rating-range advanced-filter-control">
+            <div class="filter-row-heading">
+              <p class="section-index">01 / RATING</p>
+              <strong>评分</strong>
+              <span id="rating-range-summary">全部评分</span>
+            </div>
+            <input id="rating-filter" type="hidden" value="all" />
+            <div class="dual-range-field" data-range-control>
+              <div class="dual-range-values">
+                <label><span>最低</span><select id="rating-min-value" aria-label="最低评分"></select></label>
+                <span aria-hidden="true">至</span>
+                <label><span>最高</span><select id="rating-max-value" aria-label="最高评分"></select></label>
+              </div>
+              <div class="dual-range-track">
+                <span class="dual-range-fill" data-range-fill></span>
+                <input id="rating-min" type="range" min="0" max="10" step="1" value="0" aria-label="评分下限" />
+                <input id="rating-max" type="range" min="0" max="10" step="1" value="10" aria-label="评分上限" />
+              </div>
+            </div>
+            <div class="range-sort-group" role="group" aria-label="评分排序">
+              <button type="button" data-sort-order="rating-desc" aria-pressed="false">高到低</button>
+              <button type="button" data-sort-order="rating-asc" aria-pressed="false">低到高</button>
+            </div>
+          </div>
+
+          <div id="year-advanced" class="filter-range-panel filter-year-range advanced-filter-control">
+            <div class="filter-row-heading">
+              <p class="section-index">02 / YEAR</p>
+              <strong>作品年份</strong>
+              <span id="year-range-summary">全部年份</span>
+            </div>
+            <div class="dual-range-field" data-range-control>
+              <div class="dual-range-values">
+                <label><span>起始</span><select id="year-filter-min-value" aria-label="起始年份档"></select></label>
+                <span aria-hidden="true">至</span>
+                <label><span>结束</span><select id="year-filter-max-value" aria-label="结束年份档"></select></label>
+              </div>
+              <div class="dual-range-track">
+                <span class="dual-range-fill" data-range-fill></span>
+                <input id="year-filter" type="range" min="0" max="9" step="1" value="0" aria-label="年份档位下限" />
+                <input id="year-max" type="range" min="0" max="9" step="1" value="9" aria-label="年份档位上限" />
+              </div>
+            </div>
+            <div class="range-sort-group" role="group" aria-label="年份排序">
+              <button type="button" data-sort-order="year-desc" aria-pressed="false">新到旧</button>
+              <button type="button" data-sort-order="year-asc" aria-pressed="false">旧到新</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="records-grid" class="records-grid" data-page-size="25">
+          {% for record in records %}
+            <article
+              class="record-card"
+              data-share-record
+              data-share-id="{{ record.id }}"
+              data-share-title="{{ record.title }}"
+              data-share-cover="{{ record.coverUrl or '' }}"
+              data-share-bangumi-id="{{ record.externalIds.bangumi or '' }}"
+              data-share-rating="{{ record.ratingDisplay }}"
+              data-share-review="{{ record.reviewExcerpt }}"
+              data-share-season="{{ record.seasonLabel }}"
+              data-share-year="{{ record.yearLabel }}"
+              data-share-release="{{ record.releaseLabel }}"
+              data-record-id="{{ record.id }}"
+              data-title="{{ record.title }}"
+              data-rating="{{ record.ratingValue }}"
+              data-year="{{ record.year or '' }}"
+              data-created="{{ record.createdAt }}"
+              data-updated="{{ record.updatedAt }}"
+              data-search="{{ record.searchText }}"
+              data-original-index="{{ loop.index0 }}"
+            >
+              <a
+                class="record-cover-link"
+                href="./{{ record.detailPath }}"
+                aria-label="查看《{{ record.title }}》"
+              >
+                <span
+                  class="record-cover"
+                  data-bangumi-id="{{ record.externalIds.bangumi or '' }}"
+                >
+                  <span class="cover-fallback" aria-hidden="true"></span>
+                  {% if record.coverUrl %}
+                    <img
+                      src="{{ record.coverUrl }}"
+                      alt=""
+                      loading="{{ 'eager' if loop.index <= 3 else 'lazy' }}"
+                      decoding="async"
+                      referrerpolicy="no-referrer"
+                    />
+                  {% endif %}
+                </span>
+              </a>
+
+              <div class="record-card-body">
+                <div class="record-card-topline">
+                  <p class="record-state">{{ record.matchStatusLabel }}</p>
+                  <p class="record-rating{% if not record.hasRating %} is-empty{% endif %}">
+                    {{ icon("star") }}
+                    <span>{{ record.ratingDisplay }}</span>
+                  </p>
+                </div>
+
+                <h3>
+                  <a href="./{{ record.detailPath }}">{{ record.title }}</a>
+                </h3>
+                <p class="record-meta">
+                  <span>{{ record.yearLabel or "年份未知" }}</span>
+                  {% if record.seasonLabel %}<span>{{ record.seasonLabel }}</span>{% endif %}
+                  <span>{{ record.sourceCount }} 个索引</span>
+                </p>
+                <p class="record-excerpt">{{ record.reviewExcerpt }}</p>
+
+                <div class="record-card-footer">
+                  <span>{{ "有索引" if record.sourceCount else "手动记录" }}</span>
+                  <span>{{ record.releaseLabel or "年代未标注" }}</span>
+                  <button
+                    class="share-trigger record-share-trigger"
+                    data-share-trigger
+                    type="button"
+                    aria-haspopup="dialog"
+                    aria-label="分享《{{ record.title }}》"
+                    title="分享图片"
+                  >
+                    {{ icon("share") }}
+                  </button>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+
+        <nav
+          id="records-pagination"
+          class="records-pagination"
+          aria-label="记录分页"
+          hidden
+        >
+          <p id="pagination-summary" class="pagination-summary" aria-live="polite"></p>
+          <div class="pagination-controls">
+            <label class="pagination-size">
+              <span>每页</span>
+              <select id="pagination-size" aria-label="每页显示数量">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="custom">自定义</option>
+              </select>
+              <input
+                id="pagination-size-custom"
+                type="number"
+                min="1"
+                max="200"
+                inputmode="numeric"
+                aria-label="自定义每页数量"
+                placeholder="数量"
+                hidden
+              />
+              <span>条</span>
+            </label>
+            <button
+              id="pagination-previous"
+              class="pagination-step"
+              type="button"
+              aria-label="上一页"
+            >
+              {{ icon("chevron-left") }}
+              <span>上一页</span>
+            </button>
+            <div id="pagination-pages" class="pagination-pages"></div>
+            <button
+              id="pagination-next"
+              class="pagination-step"
+              type="button"
+              aria-label="下一页"
+            >
+              <span>下一页</span>
+              {{ icon("chevron-right") }}
+            </button>
+          </div>
+        </nav>
+
+        <div id="empty-state" class="empty-state" hidden>
+          {{ icon("sparkle") }}
+          <h3>没有找到相符的记录</h3>
+          <p>换一个标题或调整筛选条件。</p>
+          <button id="reset-filters" type="button">清除条件</button>
+        </div>
+      {% else %}
+        <div class="empty-state empty-state--initial">
+          {{ icon("sparkle") }}
+          <h3>还没有番剧记录</h3>
+          <p>这个仓库已经从空白索引开始。通过油猴脚本保存第一部评分或短评后，记录会显示在这里。</p>
+          {% if repository.url %}
+            <a
+              class="empty-state-action"
+              href="{{ repository.url }}#readme"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              查看仓库接入说明
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </section>
+  </div>
+{% endblock %}

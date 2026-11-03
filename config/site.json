@@ -1,0 +1,34 @@
+{
+  "site": {
+    "title": "我的番剧档案",
+    "brand": "ANIME LEDGER",
+    "description": "一份由数据与模板共同生成的私人番剧记录。",
+    "language": "zh-CN",
+    "footer": "由 MyAnimeLife 构建"
+  },
+  "repository": {
+    "slug": "",
+    "branch": "main"
+  },
+  "template": "default",
+  "share": {
+    "template": "default",
+    "accent": "coral"
+  },
+  "insights": {
+    "tagRadar": {
+      "enabled": true,
+      "mode": "auto",
+      "maxAxes": 8,
+      "axes": [],
+      "excludedTags": [],
+      "aliasGroups": []
+    }
+  },
+  "dataFile": "data/anime.jsonl",
+  "indexFile": "data/anime-index.jsonl",
+  "bangumiCacheFile": "data/bangumi-cache.jsonl",
+  "backupDirectory": "data/backups",
+  "backupLimit": 5,
+  "outputDirectory": "dist"
+}
